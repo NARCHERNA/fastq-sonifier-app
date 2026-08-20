@@ -43,7 +43,7 @@ jobs:
           grep -q "scholar.google.com/citations?user=aIPvbqAAAAAJ" index.html
           grep -q "narcherna.github.io" app.js
           ! find . -type f | grep -Ei '\\.(fastq|fq|bam|cram|sam)(\\.gz)?$'
-          ! grep -Ril --exclude-dir=.git "orchestr" .
+          ! grep -i "orchestr" index.html app.js example-data.js styles.css README.md
 
       - name: Assemble the public site
         shell: bash
