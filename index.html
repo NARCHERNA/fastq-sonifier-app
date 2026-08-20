@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#090a0d">
+    <title>FASTQ Sonifier</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="example-data.js" defer></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="control-rail" aria-label="Instrument controls">
+        <header class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <i></i><i></i><i></i><i></i>
+          </div>
+          <div class="brand-copy">
+            <span class="brand-kicker">DATA INSTRUMENT</span>
+            <h1>FASTQ / SONIFIER</h1>
+          </div>
+          <span class="version">V2</span>
+        </header>
+
+        <div class="data-source-picker">
+          <label class="drop-zone" id="dropZone">
+            <input id="fileInput" type="file" accept=".fq.gz,.fastq.gz,.fq,.fastq,.gz" multiple>
+            <span class="drop-icon" aria-hidden="true"></span>
+            <span class="drop-copy">
+              <strong>Load FASTQ</strong>
+              <small>.fq.gz / .fastq.gz / .fq / .fastq</small>
+            </span>
+          </label>
+          <button id="exampleButton" class="example-button" type="button" aria-describedby="exampleDescription">
+            <span>
+              <strong>Try synthetic example</strong>
+              <small id="exampleDescription">1,200 reads total · paired-end · generated locally</small>
+            </span>
+            <b aria-hidden="true">DEMO</b>
+          </button>
+        </div>
+
+        <section class="rail-section transport-section" aria-labelledby="playbackTitle">
+          <div class="section-heading">
+            <h2 id="playbackTitle">Playback</h2>
+            <span id="statusPill" class="status-pill" data-state="waiting">Waiting</span>
+          </div>
+          <div class="transport" role="group" aria-label="Playback controls">
+            <button id="playButton" class="icon-button primary" type="button" title="Play" aria-label="Play">
+              <span class="icon-play" aria-hidden="true"></span>
+            </button>
+            <button id="pauseButton" class="icon-button" type="button" title="Pause" aria-label="Pause">
+              <span class="icon-pause" aria-hidden="true"></span>
+            </button>
+            <button id="stopButton" class="icon-button" type="button" title="Stop" aria-label="Stop">
+              <span class="icon-stop" aria-hidden="true"></span>
+            </button>
+            <button id="clearButton" class="icon-button quiet" type="button" title="Clear files" aria-label="Clear files">
+              <span class="icon-clear" aria-hidden="true"></span>
+            </button>
+          </div>
+          <p id="statusText" class="status-text" aria-live="polite">Load a file to begin.</p>
+        </section>
+
+        <details class="playback-guide">
+          <summary>
+            <span>
+              <strong>How to read playback</strong>
+              <small>Colours, quality and QC events</small>
+            </span>
+            <b aria-hidden="true">GUIDE</b>
+          </summary>
+          <div class="playback-guide-body">
+            <p class="guide-caveat">
+              <strong>Sampled view:</strong> every note, count and event describes only the reads selected by
+              <strong>Reads sampled</strong>, normally the first records in each file—not the complete run.
+            </p>
+
+            <div class="guide-base-key" aria-label="Base colour and sound key">
+              <span data-base="A"><i></i><strong>A</strong><small>cyan · sine</small></span>
+              <span data-base="C"><i></i><strong>C</strong><small>gold · triangle</small></span>
+              <span data-base="G"><i></i><strong>G</strong><small>coral · saw</small></span>
+              <span data-base="T"><i></i><strong>T</strong><small>violet · square</small></span>
+            </div>
+
+            <dl class="guide-definitions">
+              <div>
+                <dt>Quality ribbon + Q alarm</dt>
+                <dd>The upper ribbon is mean Phred quality at each read position. The dashed Q-alarm line is a chosen warning threshold, not a pass/fail verdict.</dd>
+              </div>
+              <div>
+                <dt>Active readout</dt>
+                <dd>Shows the playing codon, its mean Q, highest-priority event, sampled read/base position, nine-base motif ID and occurrence count.</dd>
+              </div>
+            </dl>
+
+            <div class="guide-event-list" aria-label="Playback event meanings">
+              <p data-event="clean"><i></i><strong>Clean</strong><span>No local rule fired; it does not certify the read or sample.</span></p>
+              <p data-event="warning"><i></i><strong>Warning</strong><span>One or more codon Q values fall enough below the Q alarm to become audible.</span></p>
+              <p data-event="critical"><i></i><strong>Fracture</strong><span>A strong low-Q warning (mean below Q20 or high severity), not a broken or mutated biological codon.</span></p>
+              <p data-event="ambiguous"><i></i><strong>N call</strong><span>The codon contains N or an unsupported sequence symbol normalised to N.</span></p>
+              <p data-event="adapter"><i></i><strong>Adapter</strong><span>A recognised adapter-like signature occurs in the local context; this is not a full contamination test.</span></p>
+              <p data-event="homopolymer"><i></i><strong>Homopolymer</strong><span>The local nine-base motif contains at least five identical bases in a row.</span></p>
+              <p data-event="complexity"><i></i><strong>Low complexity</strong><span>The local nine-base motif has unusually low sequence diversity.</span></p>
+            </div>
+
+            <dl class="guide-definitions">
+              <div>
+                <dt>Motif echoes</dt>
+                <dd>The count is how often that motif occurs in sampled windows; three or more occurrences may add an octave echo. It does not explain the cause.</dd>
+              </div>
+              <div>
+                <dt>MAP fingerprint</dt>
+                <dd>The eight-character label identifies the sampled sequence view for comparison. It is deterministic, but not a cryptographic file checksum.</dd>
+              </div>
+            </dl>
+          </div>
+        </details>
+
+        <section class="rail-section" aria-labelledby="presetsTitle">
+          <div class="section-heading">
+            <h2 id="presetsTitle">Character</h2>
+            <span class="mapping-badge">CODON MAP 02</span>
+          </div>
+          <div class="segmented" id="presetGroup" role="group" aria-label="Sound character">
+            <button type="button" class="segment is-selected" data-preset="truth" aria-pressed="true">Truth</button>
+            <button type="button" class="segment" data-preset="cinema" aria-pressed="false">Cinema</button>
+            <button type="button" class="segment" data-preset="microscope" aria-pressed="false">Microscope</button>
+          </div>
+        </section>
+
+        <details class="control-group" open>
+          <summary>Music</summary>
+          <div class="control-body">
+            <label class="field">
+              <span>Tempo <output id="tempoValue">88 BPM</output></span>
+              <input id="tempoInput" type="range" min="42" max="156" step="1" value="88">
+            </label>
+            <div class="field-pair">
+              <label class="field">
+                <span>Voice</span>
+                <select id="instrumentSelect">
+                  <option value="glass">Glass</option>
+                  <option value="strings">Strings</option>
+                  <option value="marimba">Marimba</option>
+                  <option value="pulse">Pulse</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Root</span>
+                <select id="rootSelect">
+                  <option value="43">G</option>
+                  <option value="45">A</option>
+                  <option value="48">C</option>
+                  <option value="50">D</option>
+                  <option value="52">E</option>
+                </select>
+              </label>
+            </div>
+            <label class="field">
+              <span>Scale</span>
+              <select id="scaleSelect">
+                <option value="dorian">Dorian</option>
+                <option value="pentatonic">Minor pentatonic</option>
+                <option value="lydian">Lydian</option>
+                <option value="hirajoshi">Hirajoshi</option>
+                <option value="whole">Whole tone</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Ambience <output id="ambienceValue">42%</output></span>
+              <input id="ambienceInput" type="range" min="0" max="100" step="1" value="42">
+            </label>
+            <label class="field">
+              <span>Stereo field <output id="stereoValue">78%</output></span>
+              <input id="stereoInput" type="range" min="0" max="100" step="1" value="78">
+            </label>
+            <label class="field">
+              <span>Volume <output id="volumeValue">74%</output></span>
+              <input id="volumeInput" type="range" min="0" max="100" step="1" value="74">
+            </label>
+          </div>
+        </details>
+
+        <details class="control-group" open>
+          <summary>Data</summary>
+          <div class="control-body">
+            <div class="field-pair">
+              <label class="field">
+                <span>Codon step</span>
+                <select id="densitySelect">
+                  <option value="3">3 bp</option>
+                  <option value="6" selected>6 bp</option>
+                  <option value="9">9 bp</option>
+                  <option value="12">12 bp</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Q alarm</span>
+                <select id="qualityThresholdSelect">
+                  <option value="20">Q20</option>
+                  <option value="25">Q25</option>
+                  <option value="30" selected>Q30</option>
+                  <option value="35">Q35</option>
+                </select>
+              </label>
+            </div>
+            <label class="field">
+              <span>Reads sampled <output id="readLimitValue">1,200</output></span>
+              <input id="readLimitInput" type="range" min="100" max="6000" step="100" value="1200">
+            </label>
+            <label class="field">
+              <span>Maximum notes <output id="noteLimitValue">2,400</output></span>
+              <input id="noteLimitInput" type="range" min="400" max="8000" step="200" value="2400">
+            </label>
+            <label class="field">
+              <span>Quality contrast <output id="qualityContrastValue">82%</output></span>
+              <input id="qualityContrastInput" type="range" min="0" max="100" step="1" value="82">
+            </label>
+            <label class="switch-row" for="diagnosticSoloInput">
+              <span>
+                <strong>Quality event solo</strong>
+                <small>Mute clean codons</small>
+              </span>
+              <input id="diagnosticSoloInput" type="checkbox" role="switch">
+            </label>
+          </div>
+        </details>
+
+        <details class="control-group">
+          <summary>Display</summary>
+          <div class="control-body">
+            <label class="field">
+              <span>Score view</span>
+              <select id="viewSelect">
+                <option value="flow">Flow</option>
+                <option value="lanes">Voice lanes</option>
+                <option value="helix">Helix</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Motion <output id="motionValue">76%</output></span>
+              <input id="motionInput" type="range" min="0" max="100" step="1" value="76">
+            </label>
+            <label class="switch-row" for="trailsInput">
+              <span>
+                <strong>Data trails</strong>
+                <small>Note persistence</small>
+              </span>
+              <input id="trailsInput" type="checkbox" role="switch" checked>
+            </label>
+          </div>
+        </details>
+
+        <section class="rail-section output-section" aria-labelledby="outputTitle">
+          <h2 id="outputTitle">Output</h2>
+          <div class="output-buttons">
+            <button id="wavButton" class="output-button" type="button" disabled>
+              <span class="download-icon" aria-hidden="true"></span>
+              <span><strong>WAV</strong><small>Full sound</small></span>
+            </button>
+            <button id="midiButton" class="output-button" type="button" disabled>
+              <span class="midi-icon" aria-hidden="true"></span>
+              <span><strong>MIDI</strong><small>Pitch + Q</small></span>
+            </button>
+            <button id="scoreButton" class="output-button" type="button" disabled>
+              <span class="score-icon" aria-hidden="true"></span>
+              <span><strong>Score</strong><small>Map + data</small></span>
+            </button>
+          </div>
+        </section>
+
+        <section class="rail-section file-section" aria-labelledby="filesTitle">
+          <h2 id="filesTitle">Voices</h2>
+          <div id="fileList" class="file-list"></div>
+        </section>
+
+        <footer class="rail-footer">
+          <a
+            class="scholar-link"
+            href="https://scholar.google.com/citations?user=aIPvbqAAAAAJ&amp;hl=en"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span>Research profile</span>
+            <strong>Google Scholar <span aria-hidden="true">↗</span></strong>
+          </a>
+          <div id="pageViewCounter" class="view-counter" role="status" aria-live="polite" hidden>
+            <span>Page views <small>not unique visitors</small></span>
+            <strong id="pageViewCount">0</strong>
+          </div>
+        </footer>
+      </aside>
+
+      <section class="stage" aria-label="FASTQ music visualizer">
+        <header class="stage-header">
+          <div class="title-block">
+            <span id="fileNameLabel" class="eyebrow">NO FILE LOADED</span>
+            <h2 id="stageTitle">Sequence awaiting signal</h2>
+          </div>
+          <div class="base-summary" id="miniSummary" aria-label="Base counts">
+            <span data-base="A"><i></i>A <b>0</b></span>
+            <span data-base="C"><i></i>C <b>0</b></span>
+            <span data-base="G"><i></i>G <b>0</b></span>
+            <span data-base="T"><i></i>T <b>0</b></span>
+          </div>
+        </header>
+
+        <div class="instrument-frame" id="instrumentFrame">
+          <canvas id="scoreCanvas" aria-label="Animated FASTQ score"></canvas>
+
+          <div class="voice-legend" id="voiceLegend" aria-label="Voice controls"></div>
+
+          <div class="active-readout" id="activeReadout" aria-live="polite">
+            <div class="codon-display" id="currentCodon" aria-label="Current codon">
+              <span>-</span><span>-</span><span>-</span>
+            </div>
+            <div class="active-meta">
+              <div>
+                <strong id="currentQuality">Q--</strong>
+                <span id="currentEvent">Awaiting data</span>
+              </div>
+              <small id="currentPosition">READ -- / BP --</small>
+            </div>
+            <div class="motif-readout">
+              <span>Motif</span>
+              <strong id="currentMotif">----</strong>
+              <small id="motifRepeat">0 echoes</small>
+            </div>
+          </div>
+
+          <div id="emptyState" class="empty-state">
+            <div class="empty-signal" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+            <strong>LOAD FASTQ</strong>
+          </div>
+
+          <div class="corner-label top-right" id="fingerprintLabel">MAP / --------</div>
+          <div class="corner-label bottom-left">PHRED +33</div>
+        </div>
+
+        <div class="timeline-row">
+          <span id="elapsedLabel">0:00</span>
+          <input id="scrubber" type="range" min="0" max="1000" step="1" value="0" aria-label="Playback position">
+          <span id="timeLabel">0:00</span>
+        </div>
+
+        <section class="metrics" aria-label="FASTQ metrics">
+          <div class="metric">
+            <span>Reads</span>
+            <strong id="readsMetric">0</strong>
+          </div>
+          <div class="metric">
+            <span>Bases</span>
+            <strong id="basesMetric">0</strong>
+          </div>
+          <div class="metric quality-metric">
+            <span>Mean Q</span>
+            <strong id="qualityMetric">0.0</strong>
+            <i id="qualityMeter"></i>
+          </div>
+          <div class="metric warning-metric">
+            <span>Q&lt;20</span>
+            <strong id="lowQualityMetric">0</strong>
+          </div>
+          <div class="metric ambiguity-metric">
+            <span>N calls</span>
+            <strong id="ambiguousMetric">0</strong>
+          </div>
+          <div class="metric">
+            <span>GC</span>
+            <strong id="gcMetric">0%</strong>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>

@@ -1,0 +1,20 @@
+# Never publish sequencing or experiment data.
+*.fastq
+*.fastq.gz
+*.fq
+*.fq.gz
+*.bam
+*.cram
+*.sam
+*.bcl
+*.bcl.gz
+*.wav
+*.jsonl
+*.csv
+*.tsv
+
+# Local and generated files.
+node_modules/
+_site/
+.DS_Store
+Thumbs.db
