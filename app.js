@@ -163,7 +163,7 @@ const presets = {
     motion: 92,
   },
   microscope: {
-    tempo: 58,
+    tempo: 42,
     instrument: "marimba",
     ambience: 16,
     stereo: 68,

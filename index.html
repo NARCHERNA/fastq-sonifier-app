@@ -124,9 +124,9 @@
             <span class="mapping-badge">CODON MAP 02</span>
           </div>
           <div class="segmented" id="presetGroup" role="group" aria-label="Sound character">
-            <button type="button" class="segment is-selected" data-preset="truth" aria-pressed="true">Truth</button>
+            <button type="button" class="segment" data-preset="truth" aria-pressed="false">Truth</button>
             <button type="button" class="segment" data-preset="cinema" aria-pressed="false">Cinema</button>
-            <button type="button" class="segment" data-preset="microscope" aria-pressed="false">Microscope</button>
+            <button type="button" class="segment is-selected" data-preset="microscope" aria-pressed="true">Microscope</button>
           </div>
         </section>
 
@@ -134,8 +134,8 @@
           <summary>Music</summary>
           <div class="control-body">
             <label class="field">
-              <span>Tempo <output id="tempoValue">88 BPM</output></span>
-              <input id="tempoInput" type="range" min="42" max="156" step="1" value="88">
+              <span>Tempo <output id="tempoValue">42 BPM</output></span>
+              <input id="tempoInput" type="range" min="42" max="156" step="1" value="42">
             </label>
             <div class="field-pair">
               <label class="field">
@@ -143,7 +143,7 @@
                 <select id="instrumentSelect">
                   <option value="glass">Glass</option>
                   <option value="strings">Strings</option>
-                  <option value="marimba">Marimba</option>
+                  <option value="marimba" selected>Marimba</option>
                   <option value="pulse">Pulse</option>
                 </select>
               </label>
@@ -162,19 +162,19 @@
               <span>Scale</span>
               <select id="scaleSelect">
                 <option value="dorian">Dorian</option>
-                <option value="pentatonic">Minor pentatonic</option>
+                <option value="pentatonic" selected>Minor pentatonic</option>
                 <option value="lydian">Lydian</option>
                 <option value="hirajoshi">Hirajoshi</option>
                 <option value="whole">Whole tone</option>
               </select>
             </label>
             <label class="field">
-              <span>Ambience <output id="ambienceValue">42%</output></span>
-              <input id="ambienceInput" type="range" min="0" max="100" step="1" value="42">
+              <span>Ambience <output id="ambienceValue">16%</output></span>
+              <input id="ambienceInput" type="range" min="0" max="100" step="1" value="16">
             </label>
             <label class="field">
-              <span>Stereo field <output id="stereoValue">78%</output></span>
-              <input id="stereoInput" type="range" min="0" max="100" step="1" value="78">
+              <span>Stereo field <output id="stereoValue">68%</output></span>
+              <input id="stereoInput" type="range" min="0" max="100" step="1" value="68">
             </label>
             <label class="field">
               <span>Volume <output id="volumeValue">74%</output></span>
@@ -190,8 +190,8 @@
               <label class="field">
                 <span>Codon step</span>
                 <select id="densitySelect">
-                  <option value="3">3 bp</option>
-                  <option value="6" selected>6 bp</option>
+                  <option value="3" selected>3 bp</option>
+                  <option value="6">6 bp</option>
                   <option value="9">9 bp</option>
                   <option value="12">12 bp</option>
                 </select>
@@ -201,8 +201,8 @@
                 <select id="qualityThresholdSelect">
                   <option value="20">Q20</option>
                   <option value="25">Q25</option>
-                  <option value="30" selected>Q30</option>
-                  <option value="35">Q35</option>
+                  <option value="30">Q30</option>
+                  <option value="35" selected>Q35</option>
                 </select>
               </label>
             </div>
@@ -215,8 +215,8 @@
               <input id="noteLimitInput" type="range" min="400" max="8000" step="200" value="2400">
             </label>
             <label class="field">
-              <span>Quality contrast <output id="qualityContrastValue">82%</output></span>
-              <input id="qualityContrastInput" type="range" min="0" max="100" step="1" value="82">
+              <span>Quality contrast <output id="qualityContrastValue">100%</output></span>
+              <input id="qualityContrastInput" type="range" min="0" max="100" step="1" value="100">
             </label>
             <label class="switch-row" for="diagnosticSoloInput">
               <span>
@@ -235,13 +235,13 @@
               <span>Score view</span>
               <select id="viewSelect">
                 <option value="flow">Flow</option>
-                <option value="lanes">Voice lanes</option>
+                <option value="lanes" selected>Voice lanes</option>
                 <option value="helix">Helix</option>
               </select>
             </label>
             <label class="field">
-              <span>Motion <output id="motionValue">76%</output></span>
-              <input id="motionInput" type="range" min="0" max="100" step="1" value="76">
+              <span>Motion <output id="motionValue">42%</output></span>
+              <input id="motionInput" type="range" min="0" max="100" step="1" value="42">
             </label>
             <label class="switch-row" for="trailsInput">
               <span>
