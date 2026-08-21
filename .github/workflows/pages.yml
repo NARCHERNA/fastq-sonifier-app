@@ -41,9 +41,11 @@ jobs:
           grep -q "Try synthetic example" index.html
           grep -q "How to read playback" index.html
           grep -q "scholar.google.com/citations?user=aIPvbqAAAAAJ" index.html
-          grep -q 'data-preset="microscope" aria-pressed="true"' index.html
+          grep -q 'class="segment is-selected" data-preset="microscope" aria-pressed="true"' index.html
+          grep -q 'id="tempoValue">42 BPM</output>' index.html
           grep -q 'id="tempoInput" type="range" min="42" max="156" step="1" value="42"' index.html
           grep -q '<option value="pentatonic" selected>Minor pentatonic</option>' index.html
+          grep -A2 'microscope: {' app.js | grep -q 'tempo: 42,'
           grep -q "narcherna.github.io" app.js
           ! find . -type f | grep -Ei '\\.(fastq|fq|bam|cram|sam)(\\.gz)?$'
           ! grep -i "orchestr" index.html app.js example-data.js styles.css README.md
