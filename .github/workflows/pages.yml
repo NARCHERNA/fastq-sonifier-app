@@ -38,7 +38,15 @@ jobs:
           test -s styles.css
           node --check app.js
           node --check example-data.js
-          grep -q "Try synthetic example" index.html
+          grep -q "Try a synthetic example" index.html
+          grep -q 'data-example-id="clean"' index.html
+          grep -q 'data-example-id="quality-crash"' index.html
+          grep -q 'data-example-id="pattern-storm"' index.html
+          grep -q "Crystal Clear" index.html
+          grep -q "Quality Crash" index.html
+          grep -q "Pattern Storm" index.html
+          grep -q 'datasetCount: DATASET_ORDER.length' example-data.js
+          grep -q 'example.createFiles(datasetId)' app.js
           grep -q "How to read playback" index.html
           grep -q "scholar.google.com/citations?user=aIPvbqAAAAAJ" index.html
           grep -q 'class="segment is-selected" data-preset="microscope" aria-pressed="true"' index.html

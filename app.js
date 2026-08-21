@@ -28,7 +28,9 @@ const state = {
 const els = {
   fileInput: document.querySelector("#fileInput"),
   dropZone: document.querySelector("#dropZone"),
-  exampleButton: document.querySelector("#exampleButton"),
+  exampleButtons: typeof document.querySelectorAll === "function"
+    ? Array.from(document.querySelectorAll("[data-example-id]"))
+    : [],
   fileList: document.querySelector("#fileList"),
   playButton: document.querySelector("#playButton"),
   pauseButton: document.querySelector("#pauseButton"),
@@ -235,7 +237,9 @@ function wireEvents() {
     loadFiles(Array.from(event.dataTransfer.files));
   });
 
-  els.exampleButton.addEventListener("click", loadSyntheticExample);
+  els.exampleButtons.forEach(function (button) {
+    button.addEventListener("click", loadSyntheticExample);
+  });
 
   els.playButton.addEventListener("click", play);
   els.pauseButton.addEventListener("click", pause);
@@ -457,25 +461,31 @@ async function loadFiles(files) {
   }
 }
 
-async function loadSyntheticExample() {
-  if (els.exampleButton.disabled) return;
+async function loadSyntheticExample(event) {
+  const button = event && event.currentTarget ? event.currentTarget : els.exampleButtons[0];
+  if (!button || button.disabled) return;
 
   const example = window.fastqSonifierExample;
   if (!example || typeof example.createFiles !== "function") {
-    setStatus("Error", "The synthetic example is not available.");
-    showToast("The synthetic example could not be opened. Reload the page and try again.");
+    setStatus("Error", "The synthetic examples are not available.");
+    showToast("The synthetic examples could not be opened. Reload the page and try again.");
     return;
   }
 
-  const buttonLabel = els.exampleButton.querySelector("strong");
+  const datasetId = button.dataset.exampleId || (example.metadata && example.metadata.defaultDataset) || "clean";
+  const dataset = getSyntheticDatasetMetadata(example, datasetId);
+  const datasetName = dataset && (dataset.name || dataset.shortName) || button.querySelector("strong").textContent;
+  const buttonLabel = button.querySelector("strong");
   const previousLabel = buttonLabel.textContent;
-  els.exampleButton.disabled = true;
-  els.exampleButton.setAttribute("aria-busy", "true");
+  els.exampleButtons.forEach(function (exampleButton) {
+    exampleButton.disabled = true;
+  });
+  button.setAttribute("aria-busy", "true");
   buttonLabel.textContent = "Preparing example…";
-  setStatus("Preparing", "Generating synthetic FASTQ reads on this device.");
+  setStatus("Preparing", "Generating " + datasetName + " FASTQ reads on this device.");
 
   try {
-    const result = await Promise.resolve(example.createFiles());
+    const result = await Promise.resolve(example.createFiles(datasetId));
     const files = normalizeExampleFiles(result);
     if (!files.length) throw new Error("No synthetic FASTQ files were created.");
     els.fileInput.value = "";
@@ -485,10 +495,26 @@ async function loadSyntheticExample() {
     setStatus("Error", "The synthetic example could not be prepared.");
     showToast(error.message || "The synthetic example could not be prepared.");
   } finally {
-    els.exampleButton.disabled = false;
-    els.exampleButton.removeAttribute("aria-busy");
+    els.exampleButtons.forEach(function (exampleButton) {
+      exampleButton.disabled = false;
+    });
+    button.removeAttribute("aria-busy");
     buttonLabel.textContent = previousLabel;
   }
+}
+
+function getSyntheticDatasetMetadata(example, datasetId) {
+  const metadata = example && example.metadata;
+  const datasets = metadata && metadata.datasets || example && example.datasets;
+  if (!datasets) return null;
+
+  if (Array.isArray(datasets)) {
+    return datasets.find(function (dataset) {
+      return dataset && dataset.id === datasetId;
+    }) || null;
+  }
+
+  return datasets[datasetId] || null;
 }
 
 function normalizeExampleFiles(result) {

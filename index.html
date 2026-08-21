@@ -32,13 +32,33 @@
               <small>.fq.gz / .fastq.gz / .fq / .fastq</small>
             </span>
           </label>
-          <button id="exampleButton" class="example-button" type="button" aria-describedby="exampleDescription">
-            <span>
-              <strong>Try synthetic example</strong>
-              <small id="exampleDescription">1,200 reads total · paired-end · generated locally</small>
-            </span>
-            <b aria-hidden="true">DEMO</b>
-          </button>
+          <fieldset class="example-picker" aria-describedby="examplePrivacy">
+            <legend>Try a synthetic example</legend>
+            <p id="examplePrivacy">Pick a contrasting paired-end demo. It is generated and analysed only in this browser.</p>
+            <div class="example-options">
+              <button class="example-button" type="button" data-example-id="clean" aria-describedby="examplePrivacy">
+                <span>
+                  <strong>Crystal Clear</strong>
+                  <small>High quality · almost no QC alerts</small>
+                </span>
+                <b aria-hidden="true">CLEAR</b>
+              </button>
+              <button class="example-button" type="button" data-example-id="quality-crash" aria-describedby="examplePrivacy">
+                <span>
+                  <strong>Quality Crash</strong>
+                  <small>3′ quality collapse · ambiguous N calls</small>
+                </span>
+                <b aria-hidden="true">CRASH</b>
+              </button>
+              <button class="example-button" type="button" data-example-id="pattern-storm" aria-describedby="examplePrivacy">
+                <span>
+                  <strong>Pattern Storm</strong>
+                  <small>GC-rich repeats · adapters and homopolymer alerts</small>
+                </span>
+                <b aria-hidden="true">STORM</b>
+              </button>
+            </div>
+          </fieldset>
         </div>
 
         <section class="rail-section transport-section" aria-labelledby="playbackTitle">
